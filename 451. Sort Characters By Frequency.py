@@ -18,7 +18,18 @@ Example 2:
 Example 3:
 """
 def frequencySort(s):
-
+    """Summary
+    The steps to solve the problem in this solution are
+    1 - Make an array of 128 ASCII elements and ith element will have 
+        2 elements of list [count, index]
+    2 - iterate through the ASCII array 
+    
+    Args:
+        s (string): input string to find the solution
+    
+    Returns:
+        string: sorted string in decreasing order based on the frequency of characters
+    """
     a = [[0,i] for i in range(128)]
     for i in s:
         a[ord(i)][0] += 1
