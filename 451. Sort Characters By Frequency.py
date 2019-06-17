@@ -22,7 +22,13 @@ def frequencySort(s):
     The steps to solve the problem in this solution are
     1 - Make an array of 128 ASCII elements and ith element will have 
         2 elements of list [count, index]
-    2 - iterate through the ASCII array 
+    2 - Sort the ASCII array based on it's count or on it's 0th item of it's elements
+    3 - Prepare the ans var
+        iterate through ASCII array and convert the 2nd item of each element to
+        it's character and then multiply it with it's count and append it
+        to the answer.
+
+    Time: O(128+s+128) => O(s)
     
     Args:
         s (string): input string to find the solution
@@ -30,6 +36,8 @@ def frequencySort(s):
     Returns:
         string: sorted string in decreasing order based on the frequency of characters
     """
+    if len(s) == 0:
+        return False
     a = [[0,i] for i in range(128)]
     for i in s:
         a[ord(i)][0] += 1
