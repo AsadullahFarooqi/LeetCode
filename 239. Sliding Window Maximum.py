@@ -1,11 +1,16 @@
-from collections import deque
-from pprint import pprint
+from bisect import insort
 
 class Solution:
     def maxSlidingWindow(self, nums, k):
+        window = sorted(nums[:k])
+        ans = []
 
+        for left, right in zip(nums, nums[k:] + [0]):
+            ans.append(window[-1])
+            window.remove(left)
+            insort(window, right)
 
-
+        return ans
 
 
 if __name__ == '__main__':
