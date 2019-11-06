@@ -1,6 +1,27 @@
 # from collections import Counter
+import time
 import collections
 class Solution:
+    def tle_solution(self, A, K):
+        ans = 0
+        left = 0
+        while left <= len(A) - K:
+            right = len(A)
+            while right >= left+K:
+                s = len(set(A[left:right]))
+                if s == K:
+                    # ans.append(A[left:right])
+                    ans += 1
+                    right -= 1
+                elif s > K:
+                    right -= 1
+                else:
+                    break
+            left += 1
+
+        # print(ans, len(ans))
+        return ans
+
     def subarraysWithKDistinct(self, A, K):
         ans = 0
         right = K
@@ -39,8 +60,7 @@ class Solution:
         dicL = collections.defaultdict(int)
         dicR = collections.defaultdict(int)
         res = 0
-        l = 0
-        r = 0
+        l = r = 0
         for i in range(len(A)):
             dicL[A[i]] += 1
             dicR[A[i]] += 1
@@ -49,12 +69,14 @@ class Solution:
                 dicL[A[l]] -= 1
                 if dicL[A[l]] == 0:
                     del dicL[A[l]]
+                print(window1, window2, A[left1], A[left2], left2, left1, res, " : 1st while")
                 l += 1
             while len(dicR) > K-1:
                 dicR[A[r]] -= 1
                 if dicR[A[r]] == 0:
                     del dicR[A[r]]
                 r += 1
+                print(dicL, dicR, " A[l]->", A[l], " A[r]->", A[r], "  l->", l, " r->", r, " res->", res, " :2nd while")
             res += r-l
         return res
 
@@ -77,6 +99,42 @@ class Solution:
             return res
         return atMostK(A, K) - atMostK(A, K-1)
 
+
+class lee215Solution:
+    def subarraysWithKDistinct(self, A, K):
+        return self.atMostK(A, K) - self.atMostK(A, K - 1)
+
+    def atMostK(self, A, K):
+        count = collections.Counter()
+        res = i = 0
+        for j in range(len(A)):
+            if count[A[j]] == 0: K -= 1
+            count[A[j]] += 1
+            while K < 0:
+                count[A[i]] -= 1
+                if count[A[i]] == 0: K += 1
+                i += 1
+            res += j - i + 1
+        return res
+
+    # inspired by @lee215
+    def subarraysWithKDistinct2(self, A, K):
+        def solve(A, K):
+            i = 0
+            res = 0
+            d = collections.Counter()
+            for j in range(len(A)):
+                d[A[j]] += 1
+                if d[A[j]] == 1: K -= 1
+                while K < 0:
+                    d[A[i]] -= 1
+                    if d[A[i]] == 0: K += 1
+                    i += 1
+                res += j - i + 1
+            return res
+        return solve(A, K) - solve(A, K-1)
+
+
 # solution of the problem by poster
 class Window:
     def __init__(self):
@@ -95,29 +153,82 @@ class Window:
 
     def __str__(self):
         return str(self.count)
-
 class Solution2(object):
+    """
+    nums = [7,8,7,8,9], k = 2
+    """
     def subarraysWithKDistinct(self, A, K):
         window1 = Window()
         window2 = Window()
         ans = left1 = left2 = 0
 
         for x in A:
-            window1.add(x)
-            window2.add(x)
+            window1.add(x) 
+            window2.add(x) 
+            
+            print(x)
+            print(window1, window2, " A[left1]->", A[left1], " A[left2]->", A[left2], "  left1->", left1, " left2->", left2, " ans->", ans)
+            
             while window1.nonzero > K:
-                print("i am in first while ", window1)
+                # print("i am in 1st while ", window1)
                 window1.remove(A[left1])
                 left1 += 1
+                print(window1, window2, " A[left1]->", A[left1], " A[left2]->", A[left2], "  left1->", left1, " left2->", left2, " ans->", ans, " :1st while")
 
             while window2.nonzero >= K:
-                print("i am in 2nd while ", window2, left2, A[left2])
+                # print( window2, left2, A[left2])
                 window2.remove(A[left2])
                 left2 += 1
+                print(window1, window2, " A[left1]->", A[left1], " A[left2]->", A[left2], "  left1->", left1, " left2->", left2, " ans->", ans, " :2nd while")
 
             ans += left2 - left1
+            print(window1, window2, " A[left1]->", A[left1], " A[left2]->", A[left2], "  left1->", left1, " left2->", left2, " ans->", ans, "\n")
+            # print()
+            # time.sleep(3)
 
         return ans
+
+
+class otocSolution:
+    def subarraysWithKDistinct(self, A, K):
+        if K == 0:
+            return 0
+        res = 0
+        left, left_k = 0, 0
+        counter = dict()
+        for right in range(len(A)):
+            counter[A[right]] = counter.get(A[right], 0) + 1
+            if len(counter) == K + 1:
+                counter.pop(A[left_k])
+                left_k += 1
+                left = left_k
+            if len(counter) == K:
+                while counter[A[left_k]] > 1:
+                    counter[A[left_k]] -= 1
+                    left_k += 1
+                res += left_k - left + 1
+        return res
+
+class lantuskySolution:
+    def subarraysWithKDistinct(self, A, K):
+        freq = {}
+        start = 0
+        start_k = 0
+        res = 0
+        for i, x in enumerate(A):
+            freq[x] = freq.get(x, 0) + 1
+            if len(freq) == K + 1:
+                # remove the distinct at start_k, move start_k, start
+                del freq[A[start_k]]
+                start_k += 1
+                start = start_k
+            if len(freq) == K:
+                # update start_k and res (Notice: K >= 1)
+                while freq[A[start_k]] > 1:
+                    freq[A[start_k]] -= 1
+                    start_k += 1
+                res += start_k - start + 1
+        return res
 
 
 if __name__ == '__main__':
@@ -128,6 +239,6 @@ if __name__ == '__main__':
     nums = [1,2,1,2,3]
     k = 2
 
-    sol = Solution()
+    sol = Solution2()
 
-    print(sol.senpaistorm(nums,k))
+    print(sol.subarraysWithKDistinct([7,8,7,8,9],2))
